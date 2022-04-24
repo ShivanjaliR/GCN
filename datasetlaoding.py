@@ -20,8 +20,8 @@ import matplotlib.pyplot as plt
 nltk.download('wordnet')
 nltk.download('omw-1.4')
 
-logger = logging.getLogger(__file__)
-
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 def nCr(n, r):
     f = math.factorial
@@ -229,8 +229,13 @@ class Dataset:
                           for word in df_tfidf.columns if df_tfidf.loc[doc, word] != 0]
         G.add_edges_from(doc_word_edges, color='black', weight=1)
         G.add_edges_from(words_edges, color='r', weight=2)
-        save_as_pickle("word_word_edges3.pkl", words_edges)
-        save_as_pickle("text_graph3.pkl", G)
+        if not os.listdir("./data/"):
+            save_as_pickle("word_word_edges2.pkl", words_edges)
+            save_as_pickle("text_graph2.pkl", G)
+            logger.info('Created Graph Saved...')
+        else:
+            print('File is already saved...')
+            logger.info('Graph is already Saved...')
 
         for n in G.nodes():
             G.nodes[n]['color'] = 'g' if n in df_tfidf.index else 'b'

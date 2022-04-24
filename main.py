@@ -7,11 +7,8 @@ from textGraph import TextGraph
 from gcnmodel import gcn
 import torch.optim as optim
 import matplotlib.pyplot as plt
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
+import pickle
+import os
 
 def accuracy(output, labels):
     _, prediction = output.max(1)
@@ -39,7 +36,6 @@ if __name__ == '__main__':
     features = dataset.generateLabels()
     wordClasses, index_doc = dataset.readFiles(features)
     # print(wordClasses)
-
 
     #one_hot_encoding_labels = dataset.encodeLabeles(classes, index_doc)
     # print(one_hot_encoding_labels)
@@ -77,5 +73,8 @@ if __name__ == '__main__':
         print('Epoch:' + str(epoch) + '\ttraining loss:'+ str(loss_train.item()) +
           '\t training accuracy:'+ str(training_accuracy.item()))
 
+    # save the model to disk
+    filename = 'finalized_model.sav'
+    pickle.dump(model, open(filename, 'wb'))
     plotGraph(range(201),loss_per_epochs,'Epochs','Loss','Loss per epochs')
     plotGraph(range(201),accuracy_per_epochs, 'Epochs', 'Accuracy', 'Accuracy per epochs')
