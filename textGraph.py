@@ -1,14 +1,14 @@
+'''
+     Text Classification using Graph Convolutional Network
+     @author: Shivanjali Vijaykumar Ranashing
+'''
+
 import os
 import pickle
 import numpy as np
 import networkx as nx
 import pandas as pd
 from resources.constants import output_folder, text_graph_name
-
-'''
-     Text Classification using Graph Convolutional Network
-     @author: Shivanjali Vijaykumar Ranashing
-'''
 
 class TextGraph:
     """

@@ -1,11 +1,11 @@
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
 '''
      Text Classification using Graph Convolutional Network
      @author: Shivanjali Vijaykumar Ranashing
 '''
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
 class gcn(nn.Module):
     """
