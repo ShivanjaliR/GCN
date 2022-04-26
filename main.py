@@ -1,3 +1,8 @@
+'''
+     Text Classification using Graph Convolutional Network
+     @author: Shivanjali Vijaykumar Ranashing
+'''
+
 from __future__ import division
 from __future__ import print_function
 
@@ -6,42 +11,24 @@ import torch
 from textGraph import TextGraph
 from gcnmodel import gcn
 import torch.optim as optim
-import matplotlib.pyplot as plt
-import pickle
-import os
+from utils import plotGraph, accuracy, generateLabels
 
-def accuracy(output, labels):
-    _, prediction = output.max(1)
-    prediction = prediction.numpy()
-    actual_labels = [(label) for label in labels]
-    correct = sum(actual_labels == prediction)
-    return correct / len(prediction)
-
-def plotGraph(x, y, x_label, y_label, graph_title):
-    plt.figure(figsize=(15, 4))
-    plt.title(graph_title, fontdict={'fontweight': 'bold', 'fontsize': 18})
-    plt.plot(x, y, label= graph_title)
-    plt.legend()
-    plt.xlabel(x_label)
-    plt.ylabel(y_label)
-    plt.savefig(graph_title+'png', dpi=100)
-    plt.show()
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+
+    # Step 1: Dataset Generation and Cleaning
     dataset = Dataset()
-    # dataset.networkxToDglgraph()
+    features = generateLabels()
+    dataset.readFilesDocCleaning(features)
+    index_doc = dataset.getIndexDoc()
 
-    features = dataset.generateLabels()
-    wordClasses, index_doc = dataset.readFiles(features)
-    # print(wordClasses)
+    # Step 2: Frequency Calculation
+    dataset.FrequencyCalculation()
 
-    #one_hot_encoding_labels = dataset.encodeLabeles(classes, index_doc)
-    # print(one_hot_encoding_labels)
+    # Step 3: Creating Graph
+    dataset.createGraph()
 
-    textGraph = TextGraph()
-    f, X, A_hat = textGraph.loadGraph()
+    # Step 4: Labeling words
+    wordClasses = dataset.labelSetting()
 
     node_labels_values = list(index_doc.values())
 
@@ -53,6 +40,12 @@ if __name__ == '__main__':
     classes = wordClasses.values()
     word_labels = [features.index(cls) for cls in classes]
     all_labels = list(node_labels) + word_labels
+
+    # Step 5. Reading Graph and fetching its respective attributes
+    textGraph = TextGraph()
+    f, X, A_hat = textGraph.loadGraph()
+
+    # Step 6. Graph Convolutional Network Model
     model = gcn(X.shape[1], A_hat)
     optimizer = optim.Adam(model.parameters())
     loss_fun = torch.nn.CrossEntropyLoss()
@@ -73,8 +66,5 @@ if __name__ == '__main__':
         print('Epoch:' + str(epoch) + '\ttraining loss:'+ str(loss_train.item()) +
           '\t training accuracy:'+ str(training_accuracy.item()))
 
-    # save the model to disk
-    filename = 'finalized_model.sav'
-    pickle.dump(model, open(filename, 'wb'))
     plotGraph(range(201),loss_per_epochs,'Epochs','Loss','Loss per epochs')
     plotGraph(range(201),accuracy_per_epochs, 'Epochs', 'Accuracy', 'Accuracy per epochs')

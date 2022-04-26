@@ -1,0 +1,5 @@
+output_folder = './data3/'
+input_folder = 'paper/'
+text_graph_name = 'text_graph2.pkl'
+word_edge_graph = 'word_word_edges2.pkl'
+resource_path = 'resources/labels'
