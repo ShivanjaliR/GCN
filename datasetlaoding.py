@@ -5,7 +5,7 @@
 
 from pathlib import Path
 
-from resources.constants import output_folder, text_graph_name, word_edge_graph, input_folder
+from resources.constants import output_folder, text_graph_name, word_edge_graph, input_folder, text_graph_file_name
 from utils import save_as_pickle, word_word_edges
 import nltk
 from nltk.stem import WordNetLemmatizer
@@ -428,7 +428,7 @@ class Dataset:
                          edge_color=colors,
                          with_labels=True,
                          node_color=node_colors)
-        plt.savefig('Text Graph' + 'png', dpi=100)
+        plt.savefig(text_graph_file_name, dpi=100)
         plt.show()
 
     def labelSetting(self):

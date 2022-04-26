@@ -43,7 +43,7 @@ def plotGraph(x, y, x_label, y_label, graph_title):
     plt.legend()
     plt.xlabel(x_label)
     plt.ylabel(y_label)
-    plt.savefig(graph_title + 'png', dpi=100)
+    plt.savefig(graph_title, dpi=100)
     plt.show()
 
 

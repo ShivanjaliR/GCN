@@ -8,6 +8,7 @@ from __future__ import print_function
 
 from datasetlaoding import Dataset
 import torch
+from resources.constants import accuracy_plot_name, loss_plot_name
 from textGraph import TextGraph
 from gcnmodel import gcn
 import torch.optim as optim
@@ -66,5 +67,5 @@ if __name__ == '__main__':
         print('Epoch:' + str(epoch) + '\ttraining loss:'+ str(loss_train.item()) +
           '\t training accuracy:'+ str(training_accuracy.item()))
 
-    plotGraph(range(201),loss_per_epochs,'Epochs','Loss','Loss per epochs')
-    plotGraph(range(201),accuracy_per_epochs, 'Epochs', 'Accuracy', 'Accuracy per epochs')
+    plotGraph(range(201),loss_per_epochs,'Epochs','Loss', loss_plot_name)
+    plotGraph(range(201),accuracy_per_epochs, 'Epochs', 'Accuracy', accuracy_plot_name)
