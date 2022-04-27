@@ -6,12 +6,10 @@
 import os
 import pickle
 import matplotlib.pyplot as plt
-from pathlib import Path
 import numpy as np
 import math
 from tqdm import tqdm
 from itertools import combinations
-
 from resources.constants import output_folder, resource_path
 
 
@@ -27,7 +25,7 @@ def save_as_pickle(filename, data):
         pickle.dump(data, output)
 
 
-def plotGraph(x, y, x_label, y_label, graph_title):
+def plotGraph(x, y, x_label, y_label, fileName, graph_title):
     """
     Plot graph for respective data
     :param x: X-axis values
@@ -43,7 +41,7 @@ def plotGraph(x, y, x_label, y_label, graph_title):
     plt.legend()
     plt.xlabel(x_label)
     plt.ylabel(y_label)
-    plt.savefig(graph_title, dpi=100)
+    plt.savefig(fileName, dpi=100)
     plt.show()
 
 
@@ -53,14 +51,6 @@ def generateLabels():
     :return: None
     """
     features = []
-    '''source_dir = Path(resource_path)
-    files = source_dir.iterdir()
-    features = []
-    for file in files:
-        with open(file, encoding="utf-8") as fp:
-            classes = fp.read().split("\n")
-            for feature in classes:
-                features.append(feature)'''
     f = open(resource_path, "r")
     classes = f.read().split("\n")
     for feature in classes:

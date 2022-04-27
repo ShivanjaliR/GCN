@@ -8,7 +8,8 @@ import pickle
 import numpy as np
 import networkx as nx
 import pandas as pd
-from resources.constants import output_folder, text_graph_name
+from resources.constants import output_folder, text_graph_name, text_graph_pkl_file_name
+
 
 class TextGraph:
     """
@@ -23,7 +24,7 @@ class TextGraph:
         :return: f, X, A_hat
                  Identity Matrix, Normalized symmetric adjacency matrix
         """
-        completeName = os.path.join(output_folder, text_graph_name)
+        completeName = os.path.join(output_folder, text_graph_pkl_file_name)
         with open(completeName, 'rb') as pkl_file:
             G = pickle.load(pkl_file)
 

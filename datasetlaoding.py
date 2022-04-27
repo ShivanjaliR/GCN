@@ -4,8 +4,10 @@
 '''
 
 from pathlib import Path
-
-from resources.constants import output_folder, text_graph_name, word_edge_graph, input_folder, text_graph_file_name
+from resources.constants import output_folder, text_graph_name, input_folder,  \
+    dataset_details, output_column_filename, output_column_noOfWords, output_column_content, summary_column_noOfFiles, \
+    summary_column_noOfUniqueWords, summary_column_uniqueWords, log_save_graph, log_pkl_saved, log_add_doc_node, \
+    log_building_graph, text_graph_pkl_file_name, word_edge_graph_pkl_file_name
 from utils import save_as_pickle, word_word_edges
 import nltk
 from nltk.stem import WordNetLemmatizer
@@ -19,6 +21,7 @@ import math
 from nltk.corpus import stopwords
 import matplotlib.pyplot as plt
 from constants import *
+import csv
 
 nltk.download('wordnet')
 nltk.download('omw-1.4')
@@ -49,6 +52,8 @@ class Dataset:
 
         def __init__(self):
             self.docName = ''
+            self.words = []
+            self.noOfWords = 0
 
         def setDocName(self, docName):
             """
@@ -64,6 +69,36 @@ class Dataset:
             :return: docName
             """
             return self.docName
+
+        def setWords(self, words):
+            """
+            Set all words present in given document
+            :param words:
+            :return: None
+            """
+            self.words = words
+
+        def getWords(self):
+            """
+            Get all words present in the given document
+            :return: words
+            """
+            return self.words
+
+        def setNoOfWords(self, noOfWords):
+            """
+            Set number of words in given document
+            :param noOfWords:
+            :return: noOfWords
+            """
+            self.noOfWords = noOfWords
+
+        def getNoOfWords(self):
+            """
+            Get number of words present in given document
+            :return:
+            """
+            return self.noOfWords
 
     def __init__(self):
         """
@@ -94,6 +129,8 @@ class Dataset:
         """
         self.documents = []
         self.cleanContent = ''
+        self.totalUniqueWords = 0
+        self.uniqueWords = []
         self.all_content_line = ''
         self.all_content_array = []
         self.noOfDocs = 0
@@ -133,6 +170,36 @@ class Dataset:
         :return: cleanContent
         """
         return self.cleanContent
+
+    def setUniqueWords(self, uniqueWords):
+        """
+        Set unique words from dataset
+        :param uniqueWords:
+        :return: None
+        """
+        self.uniqueWords = uniqueWords
+
+    def getUniqueWords(self):
+        """
+        Get unique words from dataset
+        :return: uniqueWords
+        """
+        return self.uniqueWords
+
+    def setNoUniqueWords(self, uniqueWords):
+        """
+        Set Unique words
+        :param uniqueWords:
+        :return: None
+        """
+        self.totalUniqueWords = uniqueWords
+
+    def getNoUniqueWords(self):
+        """
+        Get total number of unique words from dataset
+        :return: totalWords
+        """
+        return self.totalUniqueWords
 
     def setAllContentLine(self, all_content_line):
         """
@@ -280,10 +347,7 @@ class Dataset:
                 no_of_docs = no_of_docs + 1
                 # List file names as document nodes
                 doc_nodes.append(str(file.name))
-                # Set Document class object
-                doc = Dataset.Document()
-                doc.setDocName(file.name)
-                docs.append(doc)  # Keep track of document list
+
                 # Cleaned file name
                 cleanedFileName = [i for i in features if i in str(file.name).lower().replace('_', ' ')]
                 index_doc[file_Id] = cleanedFileName[0]
@@ -293,6 +357,14 @@ class Dataset:
 
                 # Removing spaces, special characters from tokens
                 content_no_spchar = re.sub(r"[^a-zA-Z]", " ", current_content).split()
+
+                # Set Document class object
+                doc = Dataset.Document()
+                doc.setDocName(file.name)
+                doc.setWords(content_no_spchar)
+                doc.setNoOfWords(len(content_no_spchar))
+                docs.append(doc)  # Keep track of document list
+
                 list_without_stop_word = ""
                 for word in content_no_spchar:
                     # Removing stop words, space and string less than three characters
@@ -309,6 +381,42 @@ class Dataset:
                 self.setIndexDoc(index_doc)
                 self.setDocuments(docs)
                 self.setFileNames(doc_nodes)
+                self.setnoOfDocs(len(docs))
+
+    def getDatasetDetails(self):
+        """
+        Get Dataset Details.
+        :return: None
+        """
+        documents = self.getDocuments()
+        table = []
+        row = [output_column_filename, output_column_noOfWords, output_column_content]
+        table.append(row)
+        for document in documents:
+            row = []
+            row.append(document.getDocName())
+            row.append(document.getNoOfWords())
+            row.append(document.getWords())
+            table.append(row)
+
+        summary = []
+        row = []
+        row.append(summary_column_noOfFiles)
+        row.append(self.getnoOfDocs())
+        summary.append(row)
+        row = []
+        row.append(summary_column_noOfUniqueWords)
+        row.append(self.getNoUniqueWords())
+        summary.append(row)
+        row = []
+        row.append(summary_column_uniqueWords)
+        row.append(self.getUniqueWords())
+        summary.append(row)
+
+        with open(dataset_details, 'w') as csvfile:
+            writer = csv.writer(csvfile)
+            [writer.writerow(r) for r in table]
+            [writer.writerow(r) for r in summary]
 
     def FrequencyCalculation(self):
         """
@@ -326,6 +434,9 @@ class Dataset:
         tfidf = X.todense()
         df_tfidf = pd.DataFrame(X.toarray(), columns=np.array(vocab), index=np.array(self.getFileNames()))
         self.setTfidf(df_tfidf)
+
+        self.setUniqueWords(vocab)
+        self.setNoUniqueWords(vocab.__len__())
 
         # Word and its respective index
         word2index = OrderedDict((word, index) for index, word in enumerate(vocab))
@@ -382,12 +493,12 @@ class Dataset:
         Save Graph in pickle file
         :return: None
         """
-        logger.info("Building graph (No. of document, word nodes: %d, %d)..." % (
+        logger.info(log_building_graph % (
             len(self.getTfidf().index), len(self.getFeatureNames())))
         G = nx.Graph()
-        logger.info("Adding document nodes to graph...")
+        logger.info(log_add_doc_node)
         G.add_nodes_from(self.getTfidf().index)  # Document Nodes
-        logger.info("Adding word nodes to graph...")
+        logger.info(log_add_doc_node)
         G.add_nodes_from(self.getFeatureNames())  # Word Nodes
 
         # Document-to-Word edges
@@ -399,13 +510,13 @@ class Dataset:
         words_edges = word_word_edges(self.getPmiCnt())
         G.add_edges_from(words_edges, color='r', weight=2)
         if not os.listdir(output_folder):
-            print('Graph Created...')
-            save_as_pickle(word_edge_graph, words_edges)
-            save_as_pickle(text_graph_name, G)
-            logger.info('Created Graph Saved...')
+            print(log_save_graph)
+            save_as_pickle(word_edge_graph_pkl_file_name, words_edges)
+            save_as_pickle(text_graph_pkl_file_name, G)
+            logger.info(log_save_graph)
         else:
-            print('Pkl is already saved...')
-            logger.info('Graph is already Saved...')
+            print(log_pkl_saved)
+            logger.info(log_pkl_saved)
 
         '''
            Coloring nodes.
@@ -424,17 +535,18 @@ class Dataset:
         pos = nx.spring_layout(G)
         node_colors = [node[1]['color'] for node in G.nodes(data=True)]
         plt.figure(figsize=(100, 100))
+        plt.title(text_graph_name)
         nx.draw_networkx(G, pos,
                          edge_color=colors,
                          with_labels=True,
                          node_color=node_colors)
-        plt.savefig(text_graph_file_name, dpi=100)
+        plt.savefig(text_graph_name, dpi=100)
         plt.show()
 
     def labelSetting(self):
         """
         Label words with its respective class (i.e in which document that word is occurred)
-        :return:
+        :return: None
 
         """
         word_doc = {}

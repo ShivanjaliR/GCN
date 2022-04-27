@@ -6,15 +6,19 @@
 from __future__ import division
 from __future__ import print_function
 
+import sys
 from datasetlaoding import Dataset
 import torch
-from resources.constants import accuracy_plot_name, loss_plot_name
+from resources.constants import accuracy_plot_name, loss_plot_name, output_file, loss_plot_file_name, \
+    accuracy_plot_file_name, log_training_starts, plot_x_axis, plot_y_axis_loss, plot_y_axis_accuracy
 from textGraph import TextGraph
 from gcnmodel import gcn
 import torch.optim as optim
 from utils import plotGraph, accuracy, generateLabels
 
 if __name__ == '__main__':
+
+    sys.stdout = open(output_file, "w")
 
     # Step 1: Dataset Generation and Cleaning
     dataset = Dataset()
@@ -24,6 +28,9 @@ if __name__ == '__main__':
 
     # Step 2: Frequency Calculation
     dataset.FrequencyCalculation()
+
+    # Step 1.2: Dataset Details
+    dataset.getDatasetDetails()
 
     # Step 3: Creating Graph
     dataset.createGraph()
@@ -53,7 +60,7 @@ if __name__ == '__main__':
 
     loss_per_epochs = []
     accuracy_per_epochs = []
-    print('Training Process starts...')
+    print(log_training_starts)
     for epoch in range(201):
         model.train()
         optimizer.zero_grad()
@@ -67,5 +74,5 @@ if __name__ == '__main__':
         print('Epoch:' + str(epoch) + '\ttraining loss:'+ str(loss_train.item()) +
           '\t training accuracy:'+ str(training_accuracy.item()))
 
-    plotGraph(range(201),loss_per_epochs,'Epochs','Loss', loss_plot_name)
-    plotGraph(range(201),accuracy_per_epochs, 'Epochs', 'Accuracy', accuracy_plot_name)
+    plotGraph(range(201),loss_per_epochs,plot_x_axis,plot_y_axis_loss, loss_plot_file_name, loss_plot_name)
+    plotGraph(range(201),accuracy_per_epochs, plot_x_axis, plot_y_axis_accuracy, accuracy_plot_file_name, accuracy_plot_name)
