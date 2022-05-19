@@ -8,7 +8,7 @@ import pickle
 import numpy as np
 import networkx as nx
 import pandas as pd
-from resources.constants import output_folder, text_graph_name, text_graph_pkl_file_name
+from resources.constants import output_folder,  text_graph_pkl_file_name
 
 
 class TextGraph:
@@ -17,6 +17,20 @@ class TextGraph:
     """
     def __init__(self):
         self.num = 100
+        self.no_of_nodes = 0
+        self.nodes = []
+
+    def setNoOfNodes(self, no_of_nodes):
+        self.no_of_nodes = no_of_nodes
+
+    def getNoOfNodes(self):
+        return self.no_of_nodes
+
+    def setNodes(self, nodes):
+        self.nodes = nodes
+
+    def getNodes(self):
+        return self.nodes
 
     def loadGraph(self):
         """
@@ -33,6 +47,10 @@ class TextGraph:
         # Add Adjacency Matrix and Identity Matrix
         A = A + np.eye(G.number_of_nodes())
 
+        self.setNoOfNodes(G.number_of_nodes())
+        self.setNodes(G.nodes)
+
+
         dictionary = pd.DataFrame(A, columns=np.array(G.nodes))
 
         # Building Degree Matrix
@@ -46,4 +64,4 @@ class TextGraph:
         X = np.eye(G.number_of_nodes())  # identity matrix as Input
         A_hat = degrees @ A @ degrees  # A_hat = D^-1/2 A D^-1/2
         f = X
-        return f, X, A_hat
+        return f, X, A_hat, G

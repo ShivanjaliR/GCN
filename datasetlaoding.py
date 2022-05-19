@@ -4,10 +4,12 @@
 '''
 
 from pathlib import Path
-from resources.constants import output_folder, text_graph_name, input_folder,  \
+from resources.constants import output_folder, text_graph_name, input_folder, \
     dataset_details, output_column_filename, output_column_noOfWords, output_column_content, summary_column_noOfFiles, \
     summary_column_noOfUniqueWords, summary_column_uniqueWords, log_save_graph, log_pkl_saved, log_add_doc_node, \
-    log_building_graph, text_graph_pkl_file_name, word_edge_graph_pkl_file_name
+    log_building_graph, text_graph_pkl_file_name, word_edge_graph_pkl_file_name, graph_document_edges, graph_no_nodes, \
+    graph_word_edges, graph_no_edges, graph_document_nodes, graph_word_nodes, graph_no_document_nodes, \
+    graph_no_word_nodes, graph_no_document_edges, graph_no_word_edges, graph_details
 from utils import save_as_pickle, word_word_edges
 import nltk
 from nltk.stem import WordNetLemmatizer
@@ -31,6 +33,174 @@ logger.setLevel(logging.INFO)
 
 
 class Dataset:
+
+    class Graph:
+        """
+        Graph Information and its respective attributes
+        """
+
+        def __init__(self):
+            self.doc_nodes = []
+            self.no_doc_nodes = 0
+            self.word_nodes = []
+            self.no_word_nodes = 0
+            self.doc_to_word_edges = []
+            self.no_doc_to_word_edges = 0
+            self.word_to_word_edges = []
+            self.no_word_to_word_edges = 0
+            self.total_nodes = 0
+            self.total_edges = 0
+
+        def setDocNodes(self, doc_nodes):
+            """
+            Set Document nodes
+            :param doc_nodes:
+            :return: None
+            """
+            self.doc_nodes = doc_nodes
+
+        def getDocNodes(self):
+            """
+            Return document nodes
+            :return: doc_nodes
+            """
+            return self.doc_nodes
+
+        def setNoDocNodes(self, noOfDocNodes):
+            """
+            Set No of document nodes
+            :param noOfDocNodes:
+            :return: None
+            """
+            self.no_doc_nodes = noOfDocNodes
+
+        def getNoDocNodes(self):
+            """
+            Get No of document nodes
+            :return: no_doc_nodes
+            """
+            return self.no_doc_nodes
+
+        def setWordNodes(self, word_nodes):
+            """
+            Set Word Nodes
+            :param word_nodes:
+            :return: None
+            """
+            self.word_nodes = word_nodes
+
+        def getWordNodes(self):
+            """
+            Get Word Nodes
+            :return: word_nodes
+            """
+            return self.word_nodes
+
+        def setNoWordNodes(self, no_word_nodes):
+            """
+            Set No of word nodes
+            :param no_word_nodes:
+            :return: None
+            """
+            self.no_word_nodes = no_word_nodes
+
+        def getNoWordNodes(self):
+            """
+            Get No of word Nodes
+            :return: no_word_nodes
+            """
+            return self.no_word_nodes
+
+        def setTotalNodes(self, totalNodes):
+            """
+            Set Total Number of Nodes
+            :param totalNodes:
+            :return: None
+            """
+            self.total_nodes = totalNodes
+
+        def getTotalNodes(self):
+            """
+            Get Total number of nodes
+            :return: total_nodes
+            """
+            return self.total_nodes
+
+        def setDocWordEdges(self, doc_to_word_edges):
+            """
+            Set Document to word edges
+            :param doc_to_word_edges:
+            :return: None
+            """
+            self.doc_to_word_edges = doc_to_word_edges
+
+        def getDocWordEdges(self):
+            """
+            Get Dcument to Word edges
+            :return: doc_to_word_edges
+            """
+            return self.doc_to_word_edges
+
+        def setNoDocWordEdges(self, no_doc_to_word_edges):
+            """
+            Set Number of Document to word edges
+            :param no_doc_to_word_edges:
+            :return: None
+            """
+            self.no_doc_to_word_edges = no_doc_to_word_edges
+
+        def getNoDocWordEdges(self):
+            """
+            Get Number of Document to Word Edges
+            :return: no_doc_to_word_edges
+            """
+            return self.no_doc_to_word_edges
+
+        def setWordWordEdges(self, word_to_word_edges):
+            """
+            Set Word to Word Edges
+            :param word_to_word_edges:
+            :return: None
+            """
+            self.word_to_word_edges = word_to_word_edges
+
+        def getWordWordEdges(self):
+            """
+            Get Word to word edges
+            :return: word_to_word_edges
+            """
+            return self.word_to_word_edges
+
+        def setNoWordWordEdges(self, no_word_to_word_edges):
+            """
+            Set Number of Word to word edges
+            :param no_word_to_word_edges:
+            :return: None
+            """
+            self.no_word_to_word_edges = no_word_to_word_edges
+
+        def getNoWordWordEdges(self):
+            """
+            Get Number of Word to word edges
+            :return: no_word_to_word_edges
+            """
+            return self.no_word_to_word_edges
+
+        def setTotalEdges(self, total_edges):
+            """
+            Set Total number of edges
+            :param total_edges:
+            :return: None
+            """
+            self.total_edges = total_edges
+
+        def getTotalEdges(self):
+            """
+            Get total number of edges
+            :return: total_edges
+            """
+            return self.total_edges
+
     class Document:
         """
          Class represents Document.
@@ -139,6 +309,7 @@ class Dataset:
         self.tfidf = pd.DataFrame()
         self.pmiCnt = pd.DataFrame()
         self.featureNames = []
+        self.graph = Dataset.Graph()
 
     def setnoOfDocs(self, noOfDocs):
         """
@@ -321,6 +492,21 @@ class Dataset:
         """
         return self.featureNames
 
+    def setGraph(self, graph):
+        """
+        Set graph belongs to respective dataset
+        :param graph:
+        :return: None
+        """
+        self.graph = graph
+
+    def getGraph(self):
+        """
+        Get Graph object of respective dataset
+        :return: graph
+        """
+        return self.graph
+
     def readFilesDocCleaning(self, features):
         """
         Read input files and clean its content and preserved file content as per requirement.
@@ -418,6 +604,49 @@ class Dataset:
             [writer.writerow(r) for r in table]
             [writer.writerow(r) for r in summary]
 
+    def getGraphDetails(self):
+        """
+        Write Graph details (No of nodes, No of edges etc.) in csv file
+        :return: None
+        """
+        table = []
+        row = [graph_no_document_nodes, graph_no_word_nodes, graph_no_nodes,
+               graph_no_document_edges, graph_no_word_edges, graph_no_edges]
+        table.append(row)
+        graph = self.getGraph()
+        row = [graph.getNoDocNodes(), graph.getNoWordNodes(), graph.getTotalNodes(),
+               graph.getNoDocWordEdges(), graph.getNoWordWordEdges(), graph.getTotalEdges()]
+        table.append(row)
+        row = [graph_document_nodes]
+        table.append(row)
+        row = []
+        for docNode in graph.getDocNodes():
+            row.append(docNode)
+        table.append(row)
+        row = [graph_word_nodes]
+        table.append(row)
+        row = []
+        for wordNode in graph.getWordNodes():
+            row.append(wordNode)
+        table.append(row)
+        row = [graph_document_edges]
+        table.append(row)
+        row = []
+        for docEdge in graph.getDocWordEdges():
+            row.append(docEdge)
+        table.append(row)
+        row = [graph_word_edges]
+        table.append(row)
+        row = []
+        for wordEdge in graph.getWordWordEdges():
+            row.append(wordEdge)
+        table.append(row)
+
+        with open(graph_details, 'w') as csvfile:
+            writer = csv.writer(csvfile)
+            [writer.writerow(r) for r in table]
+
+
     def FrequencyCalculation(self):
         """
         Calculate TF-IDF of all file content, Word frequency in all files, PMI of co-occurred words
@@ -493,22 +722,34 @@ class Dataset:
         Save Graph in pickle file
         :return: None
         """
+        graph = self.getGraph()
         logger.info(log_building_graph % (
             len(self.getTfidf().index), len(self.getFeatureNames())))
         G = nx.Graph()
         logger.info(log_add_doc_node)
         G.add_nodes_from(self.getTfidf().index)  # Document Nodes
+        graph.setDocNodes(self.getTfidf().index)
+        graph.setNoDocNodes(len(self.getTfidf().index))
         logger.info(log_add_doc_node)
         G.add_nodes_from(self.getFeatureNames())  # Word Nodes
+        graph.setWordNodes(self.getFeatureNames())
+        graph.setNoWordNodes(len(self.getFeatureNames()))
+        graph.setTotalNodes(graph.getNoDocNodes() + graph.getNoWordNodes())
 
         # Document-to-Word edges
         doc_word_edges = [(doc, word, {"weight": self.getTfidf().loc[doc, word]}) for doc in self.getTfidf().index
                           for word in self.getTfidf().columns if self.getTfidf().loc[doc, word] != 0]
         G.add_edges_from(doc_word_edges, color='black', weight=1)
+        graph.setDocWordEdges(doc_word_edges)
+        graph.setNoDocWordEdges(len(doc_word_edges))
 
         # Word-to-Word Edges
         words_edges = word_word_edges(self.getPmiCnt())
         G.add_edges_from(words_edges, color='r', weight=2)
+        graph.setWordWordEdges(words_edges)
+        graph.setNoWordWordEdges(len(words_edges))
+
+        graph.setTotalEdges(len(graph.getDocWordEdges()) + len(graph.getWordWordEdges()))
         if not os.listdir(output_folder):
             print(log_save_graph)
             save_as_pickle(word_edge_graph_pkl_file_name, words_edges)

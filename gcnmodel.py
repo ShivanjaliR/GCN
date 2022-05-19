@@ -7,6 +7,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from resources.constants import hidden_layer_1_size, hidden_layer_2_size, no_output_classes
+
+
 class gcn(nn.Module):
     """
     Class represents Graph Convolutional Network to handle dataset
@@ -30,29 +33,30 @@ class gcn(nn.Module):
 
     def __init__(self, X_size, A_hat, bias=True):
         super(gcn, self).__init__()
+
         # Create A_hat with torch.tensor
         self.A_hat = torch.tensor(A_hat, requires_grad=False).float()
 
         # Initialize weights for the first layer of size (X_size, 330)
-        self.weight = nn.parameter.Parameter(torch.FloatTensor(X_size, 330))  # Hidden Size 1
+        self.weight = nn.parameter.Parameter(torch.FloatTensor(X_size, hidden_layer_1_size))  # Hidden Size 1
         var = 2 / (self.weight.size(1) + self.weight.size(0))
         self.weight.data.normal_(0, var)
 
         # Initialize weights for the first layer of size (330, 130)
-        self.weight2 = nn.parameter.Parameter(torch.FloatTensor(330, 130))  # Hidden size 2
+        self.weight2 = nn.parameter.Parameter(torch.FloatTensor(hidden_layer_1_size, hidden_layer_2_size))  # Hidden size 2
         var2 = 2 / (self.weight2.size(1) + self.weight2.size(0))
         self.weight2.data.normal_(0, var2)
 
         # Initialize bias for both layers
         if bias:
-            self.bias = nn.parameter.Parameter(torch.FloatTensor(330))
+            self.bias = nn.parameter.Parameter(torch.FloatTensor(hidden_layer_1_size))
             self.bias.data.normal_(0, var)
-            self.bias1 = nn.parameter.Parameter(torch.FloatTensor(130))
+            self.bias1 = nn.parameter.Parameter(torch.FloatTensor(hidden_layer_2_size))
             self.bias.data.normal_(0, var2)
         else:
             self.register_parameter()
         # Create Linear Transformation function
-        self.fc1 = nn.Linear(130, 6)  # Hidden size 2 and no of classes
+        self.fc1 = nn.Linear(hidden_layer_2_size, no_output_classes)  # Hidden size 2 and no of classes
 
     def forward(self, X):
         """
@@ -73,7 +77,7 @@ class gcn(nn.Module):
             Matrix multiplication of first layer result with weights of second layer
         '''
         X = torch.mm(X, self.weight2)
-        if self.bias is not None:
+        if self.bias1 is not None:
             X = X + self.bias1
         '''
             As we have to do multi-classification, 
