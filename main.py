@@ -64,30 +64,14 @@ if __name__ == '__main__':
     dataset.getGraphDetails()
 
     X_new = np.hstack((X, np.array(all_labels)[:, None]))
-    print('X_new')
-    print(X_new.shape)
-
+    
     X_new_train, X_new_test, A_hat_train, A_hat_test = train_test_split(X_new, A_hat, test_size=0.33, random_state=42)
-    print(X_new_train.shape)
-    print(X_new_test.shape)
-    print(A_hat_train.shape)
-    print(A_hat_test.shape)
 
     X_train = X_new_train[:, :-1]
     y_train = X_new_train[:, -1]
-    print('X_train')
-    print(X_train.shape)
-    print('y_train')
-    print(y_train.shape)
 
     X_test = X_new_test[:, :-1]
     y_test = X_new_test[:, -1]
-    print('X_test')
-    print(X_test.shape)
-    print('y_test')
-    print(y_test.shape)
-    print(X_test)
-    print(y_test)
 
     # Step 6. Graph Convolutional Network Model
     # model = gcn(X_train.shape[1], A_hat_train)
@@ -130,7 +114,7 @@ if __name__ == '__main__':
               training_loss_plot_name)
     plotGraph(range(num_of_epochs), accuracy_per_epochs, plot_x_axis, plot_y_axis_accuracy,
               training_accuracy_plot_file_name, training_accuracy_plot_name)
-    plotGraph(test_epochs, test_loss, plot_x_axis, plot_y_axis_loss, testing_loss_plot_file_name,
+    '''plotGraph(test_epochs, test_loss, plot_x_axis, plot_y_axis_loss, testing_loss_plot_file_name,
               testing_loss_plot_name)
     plotGraph(test_epochs, test_accuracy, plot_x_axis, plot_y_axis_accuracy, testing_accuracy_plot_file_name,
-              testing_accuracy_plot_name)
+              testing_accuracy_plot_name) '''

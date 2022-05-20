@@ -772,7 +772,7 @@ class Dataset:
            Document-to-Word: Black colored edge 
            Word-to-Word: Red colored edge            
         '''
-        colors = nx.get_edge_attributes(G, 'color').values()
+        '''colors = nx.get_edge_attributes(G, 'color').values()
         pos = nx.spring_layout(G)
         node_colors = [node[1]['color'] for node in G.nodes(data=True)]
         plt.figure(figsize=(100, 100))
@@ -782,7 +782,7 @@ class Dataset:
                          with_labels=True,
                          node_color=node_colors)
         plt.savefig(text_graph_name, dpi=100)
-        plt.show()
+        plt.show()'''
 
     def labelSetting(self):
         """

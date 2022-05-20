@@ -1,21 +1,23 @@
 input_folder = 'paper/'
 
-output_folder = './data27/'
+output_folder = './data28/'
 
-output_file = './output/output.txt'
-dataset_details = './output/DatasetDetails.csv'
-text_graph_file_name = './output/Text Graph'
+output_file = './output1/output.txt'
+dataset_details = './output1/DatasetDetails.csv'
+text_graph_file_name = './output1/Text Graph'
 text_graph_name = 'Text Graph'
-training_loss_plot_file_name = './output/Training Loss per epochs'
+training_loss_plot_file_name = './output1/Training Loss per epochs'
 training_loss_plot_name = 'Training Loss per epochs'
-training_accuracy_plot_file_name = './output/Training Accuracy per epochs'
+training_accuracy_plot_file_name = './output1/Training Accuracy per epochs'
 training_accuracy_plot_name = 'Training Accuracy per epochs'
-model_filename = './output/finalized_model.sav'
+model_filename = './output1/finalized_model.sav'
 
-testing_loss_plot_file_name = './output/Training Loss per epochs'
-testing_loss_plot_name = 'Training Loss per epochs'
-testing_accuracy_plot_file_name = './output/Training Accuracy per epochs'
-testing_accuracy_plot_name = 'Training Accuracy per epochs'
+testing_loss_plot_file_name = './output1/Testing Loss per epochs'
+testing_loss_plot_name = 'Testing Loss per epochs'
+testing_accuracy_plot_file_name = './output1/Testing Accuracy per epochs'
+testing_accuracy_plot_name = 'Testing Accuracy per epochs'
+
+graph_details = './output1/GraphDetails.csv'
 
 output_column_filename = 'File Name'
 output_column_noOfWords = 'Number of Words in File'
@@ -38,8 +40,6 @@ graph_word_edges = 'Word to word Edges'
 graph_no_word_edges = 'No of word edges'
 graph_no_document_edges = 'No of document edges'
 graph_no_edges = 'Total No of edges'
-
-graph_details = './output/GraphDetails.csv'
 
 text_graph_pkl_file_name = 'text_graph2.pkl'
 word_edge_graph_pkl_file_name = 'word_word_edges2.pkl'
