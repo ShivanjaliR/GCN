@@ -6,9 +6,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 from resources.constants import hidden_layer_1_size, hidden_layer_2_size, no_output_classes
-
 
 class gcn(nn.Module):
     """

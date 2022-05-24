@@ -1,6 +1,6 @@
 input_folder = 'paper/'
 
-output_folder = './data28/'
+output_folder = './data29/'
 
 output_file = './output1/output.txt'
 dataset_details = './output1/DatasetDetails.csv'
@@ -41,8 +41,16 @@ graph_no_word_edges = 'No of word edges'
 graph_no_document_edges = 'No of document edges'
 graph_no_edges = 'Total No of edges'
 
+training_dataset_size = 'Size of Training Data'
+testing_dataset_size = 'Size of Testing Data'
+
 text_graph_pkl_file_name = 'text_graph2.pkl'
 word_edge_graph_pkl_file_name = 'word_word_edges2.pkl'
+test_index_file_name = 'test_idxs.pkl'
+selected_index_file = 'selected.pkl'
+not_selected_file = 'notselected.pkl'
+selected_label_file = 'labels_selected.pkl'
+not_selected_label_file = 'labels_not_selected.pkl'
 
 resource_path = 'resources/labels'
 

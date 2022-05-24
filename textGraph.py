@@ -10,7 +10,6 @@ import networkx as nx
 import pandas as pd
 from resources.constants import output_folder,  text_graph_pkl_file_name
 
-
 class TextGraph:
     """
      Class represents Text Graph and its related attributes
@@ -19,18 +18,6 @@ class TextGraph:
         self.num = 100
         self.no_of_nodes = 0
         self.nodes = []
-
-    def setNoOfNodes(self, no_of_nodes):
-        self.no_of_nodes = no_of_nodes
-
-    def getNoOfNodes(self):
-        return self.no_of_nodes
-
-    def setNodes(self, nodes):
-        self.nodes = nodes
-
-    def getNodes(self):
-        return self.nodes
 
     def loadGraph(self):
         """

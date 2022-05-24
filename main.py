@@ -7,8 +7,6 @@ from __future__ import division
 from __future__ import print_function
 
 import sys
-
-from sklearn.model_selection import train_test_split
 import numpy as np
 from datasetlaoding import Dataset
 import torch
@@ -16,11 +14,12 @@ from resources.constants import training_accuracy_plot_name, training_loss_plot_
     training_loss_plot_file_name, \
     training_accuracy_plot_file_name, plot_x_axis, plot_y_axis_loss, plot_y_axis_accuracy, learning_rate, \
     num_of_epochs, model_filename, testing_accuracy_plot_file_name, testing_accuracy_plot_name, \
-    testing_loss_plot_file_name, testing_loss_plot_name
+    testing_loss_plot_file_name, testing_loss_plot_name, test_index_file_name, selected_index_file, not_selected_file, \
+    selected_label_file, not_selected_label_file, training_dataset_size, testing_dataset_size
 from textGraph import TextGraph
 from gcnmodel import gcn
 import torch.optim as optim
-from utils import plotGraph, accuracy, generateLabels
+from utils import plotGraph, accuracy, generateLabels, save_as_pickle
 import pickle
 
 if __name__ == '__main__':
@@ -56,25 +55,42 @@ if __name__ == '__main__':
     word_labels = [features.index(cls) for cls in classes]
     all_labels = list(node_labels) + word_labels
 
-    # Step 5. Reading Graph and fetching its respective attributes
+    # Step 5: Split Training and Testing Dataset
+    test_idxs = []
+    test_ratio = .20
+    for cls in range(len(features)):
+        dum = [index for index, c in enumerate(all_labels) if cls == c]
+        if len(dum) >= 4:
+            test_idxs.extend(list(np.random.choice(dum, size=round(test_ratio * len(dum)), replace=False)))
+
+    save_as_pickle(test_index_file_name, test_idxs)
+    # select only certain labelled nodes for semi-supervised GCN
+    selected = []
+    not_selected = []
+    for i in range(len(all_labels)):
+        if i not in test_idxs:
+            selected.append(i)
+        else:
+            not_selected.append(i)
+    save_as_pickle(selected_index_file, selected)
+    save_as_pickle(not_selected_file, not_selected)
+
+    labels_selected = [l for idx, l in enumerate(all_labels) if idx in selected]
+    labels_not_selected = [l for idx, l in enumerate(all_labels) if idx not in selected]
+    save_as_pickle(selected_label_file, labels_selected)
+    save_as_pickle(not_selected_label_file, labels_not_selected)
+
+    print(training_dataset_size, len(labels_selected))
+    print(testing_dataset_size, len(labels_not_selected))
+
+    # Step 6. Reading Graph and fetching its respective attributes
     textGraph = TextGraph()
     f, X, A_hat, graph = textGraph.loadGraph()
 
-    # Step 6. Graph Details
+    # Step 7. Graph Details
     dataset.getGraphDetails()
 
-    X_new = np.hstack((X, np.array(all_labels)[:, None]))
-    
-    X_new_train, X_new_test, A_hat_train, A_hat_test = train_test_split(X_new, A_hat, test_size=0.33, random_state=42)
-
-    X_train = X_new_train[:, :-1]
-    y_train = X_new_train[:, -1]
-
-    X_test = X_new_test[:, :-1]
-    y_test = X_new_test[:, -1]
-
-    # Step 6. Graph Convolutional Network Model
-    # model = gcn(X_train.shape[1], A_hat_train)
+    # Step 8. Graph Convolutional Network Model
     model = gcn(X.shape[1], A_hat)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     loss_fun = torch.nn.CrossEntropyLoss()
@@ -86,27 +102,24 @@ if __name__ == '__main__':
     for epoch in range(num_of_epochs):
         model.train()
         optimizer.zero_grad()
-        # output = model(X_train)
         output = model(X)
-        # loss_train = loss_fun(output, torch.tensor(y_train))
-        loss_train = loss_fun(output, torch.tensor(all_labels))
+        loss_train = loss_fun(output[selected], torch.tensor(labels_selected))
         loss_per_epochs.append(loss_train.item())
-        # training_accuracy = accuracy(output, y_train)
-        training_accuracy = accuracy(output, all_labels)
+        training_accuracy = accuracy(output[selected], labels_selected)
         accuracy_per_epochs.append(training_accuracy.item())
         loss_train.backward()
         optimizer.step()
         print('Epoch:' + str(epoch) + '\ttraining loss:' + str(loss_train.item()) +
               '\t training accuracy:' + str(training_accuracy.item()))
-        '''if epoch%5 ==0:
+        if epoch % 5 == 0:
             test_epochs.append(epoch)
-            test_output = model(X_test)
-            loss_test = loss_fun(test_output, torch.tensor(y_test))
+            test_output = model(X)
+            loss_test = loss_fun(test_output[not_selected], torch.tensor(labels_not_selected))
             test_loss.append(loss_test.item())
-            accuracy_test = accuracy(test_output, y_test)
+            accuracy_test = accuracy(test_output[not_selected], labels_not_selected)
             test_accuracy.append(accuracy_test.item())
             print('Epoch:' + str(epoch) + '\tTesting loss:' + str(loss_test.item()) +
-                  '\t Testing accuracy:' + str(accuracy_test.item()))'''
+                  '\t Testing accuracy:' + str(accuracy_test.item()))
 
     # save the model to disk
     pickle.dump(model, open(model_filename, 'wb'))
@@ -114,7 +127,7 @@ if __name__ == '__main__':
               training_loss_plot_name)
     plotGraph(range(num_of_epochs), accuracy_per_epochs, plot_x_axis, plot_y_axis_accuracy,
               training_accuracy_plot_file_name, training_accuracy_plot_name)
-    '''plotGraph(test_epochs, test_loss, plot_x_axis, plot_y_axis_loss, testing_loss_plot_file_name,
+    plotGraph(test_epochs, test_loss, plot_x_axis, plot_y_axis_loss, testing_loss_plot_file_name,
               testing_loss_plot_name)
     plotGraph(test_epochs, test_accuracy, plot_x_axis, plot_y_axis_accuracy, testing_accuracy_plot_file_name,
-              testing_accuracy_plot_name) '''
+              testing_accuracy_plot_name)
