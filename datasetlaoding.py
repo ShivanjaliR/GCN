@@ -24,6 +24,7 @@ from nltk.corpus import stopwords
 import matplotlib.pyplot as plt
 from constants import *
 import csv
+from itertools import combinations
 
 nltk.download('wordnet')
 nltk.download('omw-1.4')
@@ -647,7 +648,7 @@ class Dataset:
             [writer.writerow(r) for r in table]
 
 
-    def FrequencyCalculation(self):
+    def FrequencyCalculation(self, sliding_window_size=10):
         """
         Calculate TF-IDF of all file content, Word frequency in all files, PMI of co-occurred words
         :return: None
@@ -669,47 +670,44 @@ class Dataset:
 
         # Word and its respective index
         word2index = OrderedDict((word, index) for index, word in enumerate(vocab))
-        wordDict = {}
+        wordDict = OrderedDict((name, 0) for name in vocab)
 
-        # Bigram frequency
-        bigrams_word_dict = {}
-        bigrams_wordDict = np.zeros((len(vocab), len(vocab)), dtype=np.int32)
-        tokens = all_content_line.split()
-        for i in range(len(tokens)):
-            first_word = tokens[i].lower()
-            if vocab.__contains__(first_word) == True:
-                word_i = word2index[first_word]
-                # Word frequency
-                if first_word in wordDict.keys():
-                    wordDict[first_word] = wordDict[first_word] + 1
-                else:
-                    wordDict[first_word] = 1
+        # Occurrance
+        occurrences = np.zeros((len(vocab), len(vocab)), dtype=np.int32)
 
-                if i + 1 > len(tokens) - 1:
-                    break
-                second_word = tokens[i + 1].lower()
-                if vocab.__contains__(second_word) == True:
-                    word_j = word2index[second_word]
-                    bigrams = first_word + " " + second_word
-                    if bigrams_wordDict[word_i][word_j] == 0:
-                        bigrams_wordDict[word_i][word_j] = 1
-                    else:
-                        bigrams_wordDict[word_i][word_j] = bigrams_wordDict[word_i][word_j] + 1
-                    if bigrams in bigrams_word_dict.keys():
-                        bigrams_word_dict[bigrams] = bigrams_word_dict[bigrams] + 1
-                    else:
-                        bigrams_word_dict[bigrams] = 1
+        # Find the co-occurrences:
+        no_windows = 0
+
+        all_content_array = self.getAllContentArray()
+
+        for l in all_content_array:
+            tokens = l.split()
+            for i in range(len(tokens) - sliding_window_size):
+                no_windows += 1
+
+                d = set(tokens[i:(i + sliding_window_size)])
+
+                for w in d:
+                    wordDict[w] += 1
+
+                for w1, w2 in combinations(d, 2):
+                    i1 = word2index[w1]
+                    i2 = word2index[w2]
+
+                    occurrences[i1][i2] += 1
+                    occurrences[i2][i1] += 1
 
         # PMI Calculation
-        p_ij = pd.DataFrame(bigrams_wordDict, index=vocab, columns=vocab)
+        p_ij = pd.DataFrame(occurrences, index=vocab, columns=vocab)/no_windows
+        p_i = pd.Series(wordDict, index=wordDict.keys())/no_windows
+
         for col in p_ij.columns:
-            p_ij[col] = p_ij[col] / wordDict[col]
+            p_ij[col] = p_ij[col] / p_i[col]
         for row in p_ij.index:
-            p_ij.loc[row, :] = p_ij.loc[row, :] / wordDict[row]
+            p_ij.loc[row, :] = p_ij.loc[row, :] / p_i[row]
         p_ij = p_ij + 1E-9
         for col in p_ij.columns:
             p_ij[col] = p_ij[col].apply(lambda x: math.log(x))
-
         self.setPmiCnt(p_ij)
 
     def createGraph(self):

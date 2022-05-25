@@ -34,10 +34,6 @@ class TextGraph:
         # Add Adjacency Matrix and Identity Matrix
         A = A + np.eye(G.number_of_nodes())
 
-        self.setNoOfNodes(G.number_of_nodes())
-        self.setNodes(G.nodes)
-
-
         dictionary = pd.DataFrame(A, columns=np.array(G.nodes))
 
         # Building Degree Matrix

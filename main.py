@@ -15,7 +15,7 @@ from resources.constants import training_accuracy_plot_name, training_loss_plot_
     training_accuracy_plot_file_name, plot_x_axis, plot_y_axis_loss, plot_y_axis_accuracy, learning_rate, \
     num_of_epochs, model_filename, testing_accuracy_plot_file_name, testing_accuracy_plot_name, \
     testing_loss_plot_file_name, testing_loss_plot_name, test_index_file_name, selected_index_file, not_selected_file, \
-    selected_label_file, not_selected_label_file, training_dataset_size, testing_dataset_size
+    selected_label_file, not_selected_label_file, training_dataset_size, testing_dataset_size, sliding_window_size
 from textGraph import TextGraph
 from gcnmodel import gcn
 import torch.optim as optim
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     index_doc = dataset.getIndexDoc()
 
     # Step 2: Frequency Calculation
-    dataset.FrequencyCalculation()
+    dataset.FrequencyCalculation(sliding_window_size)
 
     # Step 1.2: Dataset Details
     dataset.getDatasetDetails()

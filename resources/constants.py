@@ -1,6 +1,6 @@
 input_folder = 'paper/'
 
-output_folder = './data29/'
+output_folder = './data30/'
 
 output_file = './output1/output.txt'
 dataset_details = './output1/DatasetDetails.csv'
@@ -73,3 +73,4 @@ no_output_classes = 7
 learning_rate = 0.011
 num_of_epochs = 301
 
+sliding_window_size = 5
