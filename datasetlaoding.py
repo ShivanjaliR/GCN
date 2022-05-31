@@ -9,8 +9,9 @@ from resources.constants import output_folder, text_graph_name, input_folder, \
     summary_column_noOfUniqueWords, summary_column_uniqueWords, log_save_graph, log_pkl_saved, log_add_doc_node, \
     log_building_graph, text_graph_pkl_file_name, word_edge_graph_pkl_file_name, graph_document_edges, graph_no_nodes, \
     graph_word_edges, graph_no_edges, graph_document_nodes, graph_word_nodes, graph_no_document_nodes, \
-    graph_no_word_nodes, graph_no_document_edges, graph_no_word_edges, graph_details
-from utils import save_as_pickle, word_word_edges
+    graph_no_word_nodes, graph_no_document_edges, graph_no_word_edges, graph_details, tf_idf_histogram, pmi_histogram, \
+    tf_idf_histogram_title, pmi_histogram_title
+from utils import save_as_pickle, word_word_edges, drawHistogram
 import nltk
 from nltk.stem import WordNetLemmatizer
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -737,15 +738,20 @@ class Dataset:
         # Document-to-Word edges
         doc_word_edges = [(doc, word, {"weight": self.getTfidf().loc[doc, word]}) for doc in self.getTfidf().index
                           for word in self.getTfidf().columns if self.getTfidf().loc[doc, word] != 0]
+        tf_idf_weights = [self.getTfidf().loc[doc, word] for doc in self.getTfidf().index
+                          for word in self.getTfidf().columns if self.getTfidf().loc[doc, word] != 0]
         G.add_edges_from(doc_word_edges, color='black', weight=1)
         graph.setDocWordEdges(doc_word_edges)
         graph.setNoDocWordEdges(len(doc_word_edges))
+        drawHistogram(tf_idf_weights, tf_idf_histogram, tf_idf_histogram_title)
 
         # Word-to-Word Edges
         words_edges = word_word_edges(self.getPmiCnt())
+        pmi_weights = [word[2]['weight'] for word in words_edges]
         G.add_edges_from(words_edges, color='r', weight=2)
         graph.setWordWordEdges(words_edges)
         graph.setNoWordWordEdges(len(words_edges))
+        drawHistogram(pmi_weights, pmi_histogram, pmi_histogram_title)
 
         graph.setTotalEdges(len(graph.getDocWordEdges()) + len(graph.getWordWordEdges()))
         if not os.listdir(output_folder):

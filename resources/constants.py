@@ -1,23 +1,28 @@
 input_folder = 'paper/'
 
-output_folder = './data30/'
+output_folder = './data32/'
 
-output_file = './output1/output.txt'
-dataset_details = './output1/DatasetDetails.csv'
-text_graph_file_name = './output1/Text Graph'
+output_file = './output2/output.txt'
+dataset_details = './output2/DatasetDetails.csv'
+text_graph_file_name = './output2/Text Graph'
 text_graph_name = 'Text Graph'
-training_loss_plot_file_name = './output1/Training Loss per epochs'
+training_loss_plot_file_name = './output2/Training Loss per epochs'
 training_loss_plot_name = 'Training Loss per epochs'
-training_accuracy_plot_file_name = './output1/Training Accuracy per epochs'
+training_accuracy_plot_file_name = './output2/Training Accuracy per epochs'
 training_accuracy_plot_name = 'Training Accuracy per epochs'
-model_filename = './output1/finalized_model.sav'
+model_filename = './output2/finalized_model.sav'
 
-testing_loss_plot_file_name = './output1/Testing Loss per epochs'
+testing_loss_plot_file_name = './output2/Testing Loss per epochs'
 testing_loss_plot_name = 'Testing Loss per epochs'
-testing_accuracy_plot_file_name = './output1/Testing Accuracy per epochs'
+testing_accuracy_plot_file_name = './output2/Testing Accuracy per epochs'
 testing_accuracy_plot_name = 'Testing Accuracy per epochs'
 
-graph_details = './output1/GraphDetails.csv'
+tf_idf_histogram = './output2/TF-IDF Histogram'
+pmi_histogram = './output2/PMI Histogram'
+tf_idf_histogram_title = 'TF-IDF Histogram'
+pmi_histogram_title = 'PMI Histogram'
+
+graph_details = './output2/GraphDetails.csv'
 
 output_column_filename = 'File Name'
 output_column_noOfWords = 'Number of Words in File'

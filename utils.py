@@ -110,3 +110,18 @@ def encodeLabeles(word_class, index_doc):
     labels_onehot = np.array(list(map(classes_dict.get, word_class)),
                              dtype=np.int32)
     return labels_onehot
+
+def drawHistogram(array, fileName, title):
+    """
+    Draw Histogram for given input
+    :param array: Given Input for the histogram
+    :param bins: Bins for the given input
+    :param fileName: Name of file to save
+    :return: None
+    """
+    plt.hist(array)
+    plt.title(title, fontdict={'fontweight': 'bold', 'fontsize': 18})
+    plt.legend()
+    plt.savefig(fileName, dpi=100)
+    # Show plot
+    plt.show()
